@@ -37,17 +37,51 @@ Custody is a **ladder**. Rung 0 is `git config nostr.privkey` (local, plaintext)
 MPC/threshold) keep the same seam: `sign(hash) → signature`, never expose the
 key. Don't promote to mainnet value without climbing the ladder.
 
-### The pieces
+### The stack — every moving part
 
-| Layer | What | Tool |
-|---|---|---|
-| Self | the soul files (`SOUL.md`, `IDENTITY.md`, `MEMORY.md`, `AGENTS.md`, `HEARTBEAT.md`, `skills/`, `card.jsonld` WebID, `ANCHOR.md` provenance) | this skill |
-| Identity | `did:nostr` + WebID; the key published as a `verificationMethod` | `card.jsonld` |
-| Pod | a Solid pod hosts the WebID + the agent's data | jspod / JavaScriptSolidServer |
-| Pod I/O | read/write pod resources, NIP-98-signed (get → edit → put) | [podwire](https://www.npmjs.com/package/podwire) |
-| Funding | fund the soul's key from a testnet voucher | [fund-agent](https://www.npmjs.com/package/fund-agent) |
-| Anchor | timestamp the soul's commits on Bitcoin | [gitmark](https://www.npmjs.com/package/gitmark) |
-| Payments | the funded key holds a sat balance, pays for gated resources | pod `/pay` + webledger |
+| Component | Role | npm | source |
+|---|---|---|---|
+| **jsclaw** | agent orchestration / gateway (channels: webchat, Telegram, Nostr) | [`jsclaw`](https://www.npmjs.com/package/jsclaw) | [jsclaw/jsclaw](https://github.com/jsclaw/jsclaw) |
+| **agent-micro** | zero-dep agent runner — drives the model loop; jsclaw's `localRunner` | _(github only)_ | [jsclaw/agent-micro](https://github.com/jsclaw/agent-micro) |
+| **JavaScriptSolidServer** (jss) | the Solid server | [`javascript-solid-server`](https://www.npmjs.com/package/javascript-solid-server) | [JavaScriptSolidServer](https://github.com/JavaScriptSolidServer/JavaScriptSolidServer) |
+| **jspod** | batteries-included Solid pod (bundles jss) | [`jspod`](https://www.npmjs.com/package/jspod) | [JavaScriptSolidServer/jspod](https://github.com/JavaScriptSolidServer/jspod) |
+| **podwire** | agent ↔ pod read/write, NIP-98 signed (get → edit → put) | [`podwire`](https://www.npmjs.com/package/podwire) | [jsclaw/podwire](https://github.com/jsclaw/podwire) |
+| **fund-agent** | fund the soul's key from a testnet voucher | [`fund-agent`](https://www.npmjs.com/package/fund-agent) | [blocktrails/fund-agent](https://github.com/blocktrails/fund-agent) |
+| **gitmark** | anchor git commits to Bitcoin (taproot key-chaining) | [`gitmark`](https://www.npmjs.com/package/gitmark) | [solidpayorg/gitmark](https://github.com/solidpayorg/gitmark) · [git-mark.com](https://git-mark.com) |
+| **soul-trail** | anchor _souls_ (this skill) | _(skill)_ | [soul-trail/soul-trail](https://github.com/soul-trail/soul-trail) |
+| **blocktrails** | Bitcoin taproot key-chaining substrate | — | [blocktrails.org](https://blocktrails.org) |
+| pod payments | sat balance + pay-to-access on the pod | _(in jss)_ | `/pay` + webledger |
+
+The soul itself is just files: `SOUL.md`, `IDENTITY.md`, `MEMORY.md` + `memory/`,
+`AGENTS.md`, `HEARTBEAT.md`, `skills/`, `card.jsonld` (WebID), `ANCHOR.md`
+(provenance).
+
+### Run the whole stack
+
+```bash
+# 1. A Solid pod — hosts the WebID + the soul's data (batteries-included; bundles jss)
+npx jspod                                  # → http://localhost:5444
+
+# 2. The agent runtime
+npm i -g jsclaw
+jsclaw onboard                             # pick model/provider, scaffold an agent
+jsclaw gateway --port 18790                # run it; agent-micro is the runner it drives
+#   (agent-micro: github:jsclaw/agent-micro — set as jsclaw's localRunner)
+
+# 3. Agent ↔ pod  (NIP-98 signed with the soul's key)
+npm i -g podwire
+POD_NOSTR_KEY=<hex> podwire get https://your.pod/public/tracker/todo-data.jsonld
+POD_NOSTR_KEY=<hex> podwire put https://your.pod/...     # full body on stdin
+
+# 4. Fund the soul's key  (testnet — voucher in ~/.gitmark/faucet.txt; see SKILL.md)
+npx fund-agent                             # tbtc4; writes git config nostr.privkey + funds it
+
+# 5. Anchor the soul to Bitcoin
+npm i -g gitmark
+git mark init --chain tbtc4
+git commit -m "soul snapshot" && git mark  # timestamp HEAD on Bitcoin
+git mark verify                            # re-derive + check the trail
+```
 
 ### Build it up
 
