@@ -29,8 +29,16 @@ you did not check.**
 Run `pwd` to find your workspace directory.
 
 ### 2. Detect repo
-Run `git rev-parse --is-inside-work-tree 2>/dev/null` in the workspace. It
-prints `true` if this is already a git repository; nothing (or an error) if not.
+Check whether the workspace is its **own** git repository — not merely inside
+some ancestor repo (a home directory or parent can be a repo, which would
+otherwise mislead you):
+
+```
+[ "$(git rev-parse --show-toplevel 2>/dev/null)" = "$(pwd)" ] && echo own-repo || echo not-own-repo
+```
+
+`own-repo` means this workspace is its own git root; `not-own-repo` means it is
+not yet a repo of its own (even if an ancestor directory happens to be one).
 
 ### Report
 After the last step above, reply with exactly one line and nothing else:
