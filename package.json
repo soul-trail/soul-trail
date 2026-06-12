@@ -1,0 +1,12 @@
+{
+  "name": "soul-trail",
+  "version": "0.0.1",
+  "description": "Preserve and anchor an AI agent's soul to Bitcoin — a SKILL.md skill",
+  "type": "module",
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/soul-trail/soul-trail.git"
+  },
+  "keywords": ["soul-trail", "skill", "agent", "gitmark", "blocktrails", "nostr", "bitcoin", "jsclaw"]
+}
