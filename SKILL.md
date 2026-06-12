@@ -1,7 +1,6 @@
 ---
 name: soul-trail
 description: How to preserve and anchor your soul — your identity and memory files — as a versioned, Bitcoin-anchored trail. Read and follow this whenever asked to back up, version, snapshot, save, or anchor your soul or workspace.
-version: 0.0.4
 license: AGPL-3.0-or-later
 uses: [gitmark, blocktrails]
 ---
@@ -68,7 +67,7 @@ The commit hash is your soul's fingerprint. Capture it: `git rev-parse --short H
 ### Report
 After the last step above, reply with exactly one line and nothing else:
 
-🪢 soul-trail v4 — workspace: <path> — git repo: yes — soul committed: <short hash>
+🪢 soul-trail — workspace: <path> — git repo: yes — soul committed: <short hash>
 
 Then stop and await further instruction. (Future steps add: git init, stage the
 soul explicitly, commit, anchor to Bitcoin via gitmark.)
