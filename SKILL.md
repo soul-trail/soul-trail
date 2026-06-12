@@ -1,7 +1,7 @@
 ---
 name: soul-trail
 description: How to preserve and anchor your soul — your identity and memory files — as a versioned, Bitcoin-anchored trail. Read and follow this whenever asked to back up, version, snapshot, save, or anchor your soul or workspace.
-version: 0.0.3
+version: 0.0.4
 license: AGPL-3.0-or-later
 uses: [gitmark, blocktrails]
 ---
@@ -49,13 +49,26 @@ git init -q
 
 This creates an independent repo for the soul, even if an ancestor directory is
 already a repo (the new inner repo governs this subtree — intended). If step 2
-reported `own-repo`, do nothing here. Do **not** stage or commit anything yet —
-that is a later step.
+reported `own-repo`, do nothing here.
+
+### 4. Snapshot the soul
+Stage **only** the durable soul files — never `git add -A` or `git add .`, since
+the workspace may hold scratch files or downloads that must not be committed or
+anchored. Then commit:
+
+```
+for f in SOUL.md IDENTITY.md AGENTS.md TOOLS.md USER.md HEARTBEAT.md MEMORY.md card.jsonld memory skills; do
+  [ -e "$f" ] && git add "$f"
+done
+git commit -q -m "soul snapshot $(date -u +%Y-%m-%dT%H:%MZ)" || true
+```
+
+The commit hash is your soul's fingerprint. Capture it: `git rev-parse --short HEAD`.
 
 ### Report
 After the last step above, reply with exactly one line and nothing else:
 
-🪢 soul-trail v3 — workspace: <path from pwd> — git repo: <yes if own-repo now, else no>
+🪢 soul-trail v4 — workspace: <path> — git repo: yes — soul committed: <short hash>
 
 Then stop and await further instruction. (Future steps add: git init, stage the
 soul explicitly, commit, anchor to Bitcoin via gitmark.)
