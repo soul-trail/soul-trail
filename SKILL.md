@@ -18,6 +18,32 @@ blocktrails over an agent workspace).
 This skill grows over time — follow only the numbered steps that exist here, in
 order, and stop after the last one.
 
+## Funding (bootstrap)
+
+Anchoring a soul to Bitcoin (the final step) spends a few sats, so the soul
+needs a funded signing key. This is a **one-time human setup** — done once, out
+of band — not one of the agent steps below. It also creates the soul's key (the
+one the card publishes and the anchor signs with).
+
+On **testnet4** — play money, fund freely:
+
+1. Get testnet4 coins from a faucet
+   ([awesome-testnet4 → faucets](https://github.com/testnet4/awesome-testnet4#faucets))
+   and save the voucher at `~/.gitmark/faucet.txt`.
+2. In the soul's workspace, run [`fund-agent`](https://www.npmjs.com/package/fund-agent):
+
+   ```
+   npx fund-agent          # testnet4 by default; add --force if it reports an existing key
+   ```
+
+   It generates the soul's key in **local** git config (`nostr.privkey`), funds
+   it from the voucher, and writes the spendable output to its own default
+   location. **Never use `--global`** — that overwrites your global key; local
+   (the default) is what you want.
+
+Mainnet is a deliberate, later choice — an agent spending real funds is gated
+work (approvals). Testnet is the sandbox; play.
+
 ## Steps
 
 When asked to look after, back up, or anchor your soul, run these steps in
