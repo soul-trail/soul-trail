@@ -1,7 +1,7 @@
 ---
 name: soul-trail
 description: How to preserve and anchor your soul — your identity and memory files — as a versioned, Bitcoin-anchored trail. Read and follow this whenever asked to back up, version, snapshot, save, or anchor your soul or workspace.
-version: 0.0.2
+version: 0.0.3
 license: AGPL-3.0-or-later
 uses: [gitmark, blocktrails]
 ---
@@ -40,10 +40,22 @@ otherwise mislead you):
 `own-repo` means this workspace is its own git root; `not-own-repo` means it is
 not yet a repo of its own (even if an ancestor directory happens to be one).
 
+### 3. Initialize if needed
+Only if step 2 reported `not-own-repo`, make this workspace its own repository:
+
+```
+git init -q
+```
+
+This creates an independent repo for the soul, even if an ancestor directory is
+already a repo (the new inner repo governs this subtree — intended). If step 2
+reported `own-repo`, do nothing here. Do **not** stage or commit anything yet —
+that is a later step.
+
 ### Report
 After the last step above, reply with exactly one line and nothing else:
 
-🪢 soul-trail v2 — workspace: <path from pwd> — git repo: <yes if true, else no>
+🪢 soul-trail v3 — workspace: <path from pwd> — git repo: <yes if own-repo now, else no>
 
 Then stop and await further instruction. (Future steps add: git init, stage the
 soul explicitly, commit, anchor to Bitcoin via gitmark.)
