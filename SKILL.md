@@ -1,7 +1,7 @@
 ---
 name: soul-trail
 description: How to preserve and anchor your soul — your identity and memory files — as a versioned, Bitcoin-anchored trail. Read and follow this whenever asked to back up, version, snapshot, save, or anchor your soul or workspace.
-version: 0.0.1
+version: 0.0.2
 license: AGPL-3.0-or-later
 uses: [gitmark, blocktrails]
 ---
@@ -21,11 +21,21 @@ order, and stop after the last one.
 
 ## Steps
 
-### 1. Confirm
-When asked to look after, back up, or anchor your soul, first ground yourself:
-run `pwd` to find your workspace, then reply with exactly this line and nothing else:
+When asked to look after, back up, or anchor your soul, run these steps in
+order and stop after the last one. **Verify with tools — never report a state
+you did not check.**
 
-🪢 soul-trail v1 loaded — guarding <workspace path from pwd>
+### 1. Ground
+Run `pwd` to find your workspace directory.
 
-Then stop and await further instruction. (Future steps add: detect git repo,
-stage the soul explicitly, commit, anchor to Bitcoin via gitmark.)
+### 2. Detect repo
+Run `git rev-parse --is-inside-work-tree 2>/dev/null` in the workspace. It
+prints `true` if this is already a git repository; nothing (or an error) if not.
+
+### Report
+After the last step above, reply with exactly one line and nothing else:
+
+🪢 soul-trail v2 — workspace: <path from pwd> — git repo: <yes if true, else no>
+
+Then stop and await further instruction. (Future steps add: git init, stage the
+soul explicitly, commit, anchor to Bitcoin via gitmark.)
