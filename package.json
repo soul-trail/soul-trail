@@ -1,6 +1,6 @@
 {
   "name": "soul-trail",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Preserve and anchor an AI agent's soul to Bitcoin — a SKILL.md skill",
   "type": "module",
   "license": "AGPL-3.0-or-later",
