@@ -50,7 +50,31 @@ This creates an independent repo for the soul, even if an ancestor directory is
 already a repo (the new inner repo governs this subtree — intended). If step 2
 reported `own-repo`, do nothing here.
 
-### 4. Snapshot the soul
+### 4. Write your identity card (no key yet)
+Write a minimal WebID profile to `card.jsonld` in your workspace. This is the
+identity document; the signing key is added in a later step. Use your own name
+(from SOUL.md):
+
+```
+cat > card.jsonld <<'CARD'
+{
+  "@context": [
+    "https://www.w3.org/ns/cid/v1",
+    { "Agent": "http://xmlns.com/foaf/0.1/Agent",
+      "name": "http://xmlns.com/foaf/0.1/name",
+      "isPrimaryTopicOf": { "@id": "http://xmlns.com/foaf/0.1/isPrimaryTopicOf", "@type": "@id" } }
+  ],
+  "@id": "#me",
+  "@type": "Agent",
+  "name": "YOUR_NAME",
+  "isPrimaryTopicOf": "card.jsonld"
+}
+CARD
+```
+
+Replace `YOUR_NAME` with your name before writing.
+
+### 5. Snapshot the soul
 Stage **only** the durable soul files — never `git add -A` or `git add .`, since
 the workspace may hold scratch files or downloads that must not be committed or
 anchored. Then commit:
@@ -67,7 +91,7 @@ The commit hash is your soul's fingerprint. Capture it: `git rev-parse --short H
 ### Report
 After the last step above, reply with exactly one line and nothing else:
 
-🪢 soul-trail — workspace: <path> — git repo: yes — soul committed: <short hash>
+🪢 soul-trail — workspace: <path> — git repo: yes — card: written — soul committed: <short hash>
 
 Then stop and await further instruction. (Future steps add: git init, stage the
 soul explicitly, commit, anchor to Bitcoin via gitmark.)
