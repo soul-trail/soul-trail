@@ -11,7 +11,7 @@ the identity files, `memory/`, and `skills/`. This skill is how you look after
 it — turning it into a git history and anchoring that history to Bitcoin, so an
 agent's identity becomes portable, versioned, and cryptographically timestamped.
 
-It is the soul-layer counterpart of [gitmark](https://github.com/melvincarvalho):
+It is the soul-layer counterpart of [gitmark](https://git-mark.com):
 gitmark anchors commits; **soul-trail anchors souls** (orchestrating gitmark and
 blocktrails over an agent workspace).
 
