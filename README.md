@@ -42,7 +42,7 @@ key. Don't promote to mainnet value without climbing the ladder.
 | Component | Role | npm | source |
 |---|---|---|---|
 | **jsclaw** | agent orchestration / gateway (channels: webchat, Telegram, Nostr) | [`jsclaw`](https://www.npmjs.com/package/jsclaw) | [jsclaw/jsclaw](https://github.com/jsclaw/jsclaw) |
-| **agent-micro** | zero-dep agent runner — drives the model loop; jsclaw's `localRunner` | _(github only)_ | [jsclaw/agent-micro](https://github.com/jsclaw/agent-micro) |
+| **agent-micro** | zero-dep agent runner — drives the model loop; jsclaw's `localRunner` | [`jsclaw-agent-micro`](https://www.npmjs.com/package/jsclaw-agent-micro) | [jsclaw/agent-micro](https://github.com/jsclaw/agent-micro) |
 | **JavaScriptSolidServer** (jss) | the Solid server | [`javascript-solid-server`](https://www.npmjs.com/package/javascript-solid-server) | [JavaScriptSolidServer](https://github.com/JavaScriptSolidServer/JavaScriptSolidServer) |
 | **jspod** | batteries-included Solid pod (bundles jss) | [`jspod`](https://www.npmjs.com/package/jspod) | [JavaScriptSolidServer/jspod](https://github.com/JavaScriptSolidServer/jspod) |
 | **podwire** | agent ↔ pod read/write, NIP-98 signed (get → edit → put) | [`podwire`](https://www.npmjs.com/package/podwire) | [jsclaw/podwire](https://github.com/jsclaw/podwire) |
@@ -142,6 +142,76 @@ The soul's lifecycle, in order (the runnable form is `SKILL.md`):
 - gitmark + `ANCHOR.md` are its **spine / keel** — provenance: the witnessed past
   that proves it is the same soul over time.
 - Bitcoin is the **witness** — continuity without a custodian.
+
+---
+
+## Setup & configuration
+
+Enough for an agent to stand the stack up from scratch.
+
+**Prerequisites:** Node 18+, git, a model-provider key (Anthropic / Z.ai-GLM /
+Kimi / any Anthropic-compatible proxy). For funding + anchoring, a testnet4
+voucher (see [`SKILL.md`](./SKILL.md) → Funding).
+
+### 1. Configure the agent (`jsclaw`)
+
+Easiest path: `jsclaw onboard` — interactive; picks a provider/model, writes
+`jsclaw.json`, scaffolds an agent workspace. Or write `jsclaw.json` by hand:
+
+```jsonc
+{
+  "model": "kimi-for-coding",
+  "providerBaseUrl": "https://api.kimi.com/coding",  // omit for Anthropic direct
+  "providerAuthToken": "${KIMI_API_KEY}",            // ${VAR} is read from the env
+  "gatewayToken": "<shared-secret>",                 // auth for the gateway WS/MCP + chat
+  "localRunner": "<path>/agent-micro/runner.js",     // the runner jsclaw drives
+  "sandboxMode": "off",                              // off = run the runner natively
+  "channels": {
+    "telegram": { "botToken": "${TELEGRAM_BOT_TOKEN}", "allowFrom": ["<telegram-user-id>"] },
+    "nostr":    { "privateKey": "${AGENT_NOSTR_KEY}", "relays": ["wss://relay.example"], "allowFrom": ["<owner-pubkey-hex>"] }
+  },
+  "plugins": { "load": { "paths": [] } }
+}
+```
+
+Provider presets — set the matching env var (`${VAR}` is expanded at load):
+
+| Provider | `model` | `providerBaseUrl` | key env (sent as) |
+|---|---|---|---|
+| Anthropic (direct) | `claude-sonnet-4-6` | _(default)_ | `ANTHROPIC_API_KEY` |
+| Z.ai / GLM | `glm-4.6` | `https://api.z.ai/api/anthropic` | `ZAI_API_KEY` (authToken) |
+| Kimi Code | `kimi-for-coding` | `https://api.kimi.com/coding` | `KIMI_API_KEY` (authToken) |
+| Custom proxy (LiteLLM, …) | _your model_ | _your proxy_ | `ANTHROPIC_AUTH_TOKEN` |
+
+### 2. Run the gateway
+
+```bash
+export KIMI_API_KEY=...  TELEGRAM_BOT_TOKEN=...  AGENT_NOSTR_KEY=...
+jsclaw gateway --port 18790
+# webchat: http://127.0.0.1:18790/chat?token=<gatewayToken>
+```
+
+`agent-micro` is the runner jsclaw spawns per session (set as `localRunner`); it
+receives the provider env + model over stdin and drives the model loop. Channels
+(`webchat`, `telegram`, `nostr`) only accept messages from the `allowFrom` lists.
+
+### 3. Stand up the pod
+
+```bash
+npx jspod                       # single-user Solid pod → http://localhost:5444
+```
+
+The WebID is served at `http://localhost:5444/profile/card.jsonld#me`. Publish
+the soul's **public** key into it as a CID Multikey `verificationMethod`
+(referenced from `authentication`) so NIP-98 writes authenticate to the WebID.
+`podwire` then reads/writes pod resources with the soul's key; cross-pod writes
+need a WAC `.acl` granting `did:nostr:<pubkey>`.
+
+### 4. The soul's key
+
+One secp256k1 key at `git config --local nostr.privkey` (rung 0). `fund-agent`
+generates and funds it; `gitmark` and `podwire` sign with it; the WebID
+publishes its pubkey. Keep it **local**, never `--global`, **testnet first**.
 
 ---
 
