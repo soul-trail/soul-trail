@@ -11,7 +11,7 @@ the identity files, `memory/`, and `skills/`. This skill is how you look after
 it — turning it into a git history and anchoring that history to Bitcoin, so an
 agent's identity becomes portable, versioned, and cryptographically timestamped.
 
-It is the soul-layer counterpart of [gitmark](https://github.com/melvincarvalho):
+It is the soul-layer counterpart of [gitmark](https://git-mark.com):
 gitmark anchors commits; **soul-trail anchors souls** (orchestrating gitmark and
 blocktrails over an agent workspace).
 
@@ -114,10 +114,60 @@ git commit -q -m "soul snapshot $(date -u +%Y-%m-%dT%H:%MZ)" || true
 
 The commit hash is your soul's fingerprint. Capture it: `git rev-parse --short HEAD`.
 
+### 6. Anchor to Bitcoin
+Timestamp this snapshot on Bitcoin, so the soul's history becomes witnessed and
+unforgeable — its provenance, the part no one (not even you) can rewrite. This
+requires the funded key from **Funding (bootstrap)** above, and spends a few
+**testnet** sats. It uses [gitmark](https://git-mark.com) — blocktrails taproot
+key-chaining over the soul's own key.
+
+Initialize the trail once (testnet4), and keep marking from dirtying the working
+tree:
+
+```
+command -v git-mark >/dev/null || npm install -g gitmark
+git mark init --chain tbtc4 2>/dev/null || true
+git config --local gitmark.dirty false
+```
+
+Anchor the latest soul snapshot (HEAD), then sync the committed trail file:
+
+```
+git mark          # derives a taproot address from your key + the commit hash, broadcasts a (testnet) tx
+git mark update   # write the canonical, verifiable trail to blocktrails.json
+```
+
+Record the readable provenance in `ANCHOR.md` — the canonical machine trail is
+`blocktrails.json`; verify against Bitcoin any time with `git mark verify`:
+
+```
+cat > ANCHOR.md <<'ANCHOR'
+# Anchor
+
+This soul's history is anchored to Bitcoin (testnet4) via gitmark.
+
+- Canonical, verifiable trail: `blocktrails.json`
+- Verify against Bitcoin: `git mark verify`
+
+Each entry chains a git commit to a taproot address derived from the soul's key,
+so anyone can re-derive and check it. The files are the body; this is the spine.
+ANCHOR
+```
+
+Snapshot the new provenance files — **explicitly**, never `git add -A`:
+
+```
+for f in ANCHOR.md blocktrails.json; do [ -e "$f" ] && git add "$f"; done
+git commit -q -m "anchor $(date -u +%Y-%m-%dT%H:%MZ)" || true
+```
+
+Mainnet is a deliberate, gated choice (see Funding) — testnet is the sandbox; play.
+
 ### Report
 After the last step above, reply with exactly one line and nothing else:
 
-🪢 soul-trail — workspace: <path> — git repo: yes — card: written — soul committed: <short hash>
+🪢 soul-trail — workspace: <path> — git repo: yes — card: written — soul committed: <short hash> — anchored: <txid or "see blocktrails.json">
 
-Then stop and await further instruction. (Future steps add: git init, stage the
-soul explicitly, commit, anchor to Bitcoin via gitmark.)
+Then stop and await further instruction. This completes the trail: identity
+(`card.jsonld`), snapshot (git), and Bitcoin anchor (`blocktrails.json` /
+`ANCHOR.md`).
