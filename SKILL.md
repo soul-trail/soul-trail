@@ -130,6 +130,16 @@ git mark init --chain tbtc4 2>/dev/null || true
 git config --local gitmark.dirty false
 ```
 
+Bridge the funding: `fund-agent` left the sats on the soul's **own** key (the TXO
+is in `.well-known/txo/txo.json`), but `git mark` reads its spendable tip from
+`git config gitmark.txo`. `init --voucher` only sweeps an *external* key (`&key=`),
+so for base-key funds set the tip directly — otherwise `git mark` reports
+`No funding`:
+
+```
+git config --local gitmark.txo "txo:tbtc4:<txid>:<vout>?amount=<sats>"
+```
+
 Anchor the latest soul snapshot (HEAD), then sync the committed trail file:
 
 ```

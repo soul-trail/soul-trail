@@ -79,6 +79,10 @@ npx fund-agent                             # tbtc4; writes git config nostr.priv
 # 5. Anchor the soul to Bitcoin
 npm i -g gitmark
 git mark init --chain tbtc4
+#    bridge: point gitmark at the TXO fund-agent created (.well-known/txo/txo.json).
+#    `init --voucher` only sweeps an *external* key (&key=); funds already on the
+#    soul's own key are wired up via gitmark.txo:
+git config --local gitmark.txo "txo:tbtc4:<txid>:<vout>?amount=<sats>"
 git commit -m "soul snapshot" && git mark  # timestamp HEAD on Bitcoin
 git mark verify                            # re-derive + check the trail
 ```
